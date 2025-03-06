@@ -19,7 +19,7 @@ export default function Home() {
     useEffect(() => {
       const fetchLeads = async () => {
         try {
-          const response = await fetch('http://localhost:9001/leads');
+          const response = await fetch('https://leads-crud-nodejs.vercel.app/leads');
           const data = await response.json();
           console.log('Fetched Leads:', data);
           setLeads(data.leadsCRUDData || []);
@@ -35,7 +35,7 @@ export default function Home() {
     setMessage(null);
 
     try {
-      const response = await fetch('http://localhost:9001/leads', {
+      const response = await fetch('https://leads-crud-nodejs.vercel.app/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
