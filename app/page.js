@@ -1,8 +1,8 @@
- 'use client'
- import { useEffect, useState } from 'react';
- import { FaPlus } from "react-icons/fa";
- import Swal from "sweetalert2"; // Import SweetAlert
- import Select from "react-select";
+'use client'
+import { useEffect, useState } from 'react';
+import { FaPlus } from "react-icons/fa";
+import Swal from "sweetalert2"; // Import SweetAlert
+import Select from "react-select";
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
@@ -11,15 +11,16 @@ export default function Home() {
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     router.push('/LoginPage');
-};
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (!token) {
-        router.push('/LoginPage');
-        return
+      router.push('/LoginPage');
+      return;
     }
-}, []);
+  }, []);
+
   const [formData, setFormData] = useState({
     name: "",
     discountRate: "",
@@ -35,7 +36,7 @@ export default function Home() {
   const [countries, setCountries] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [editId, setEditId] = useState(null); // Track lead being edited
-console.log(selectedCountry,'selectedCountry_____')
+
   useEffect(() => {
     fetch("https://restcountries.com/v3.1/all")
       .then((response) => response.json())
@@ -49,6 +50,7 @@ console.log(selectedCountry,'selectedCountry_____')
       })
       .catch((error) => console.error("Error fetching countries:", error));
   }, []);
+
   const handleCountryChange = (selected) => {
     setSelectedCountry(selected);
     console.log("Selected Country:", selected); // Show in console
@@ -70,6 +72,7 @@ console.log(selectedCountry,'selectedCountry_____')
       {data.label}
     </div>
   );
+
   const customOption = (props) => {
     const { data, innerRef, innerProps } = props;
     return (
@@ -80,11 +83,9 @@ console.log(selectedCountry,'selectedCountry_____')
     );
   };
 
-console.log(leads,'leads_____')
-
-const handleChange = (e) => {
-  setFormData({ ...formData, [e.target.name]: e.target.value });
-};
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleDelete = async (id) => {
     const confirmDelete = await Swal.fire({
@@ -117,7 +118,6 @@ const handleChange = (e) => {
     }
   };
 
-
   useEffect(() => {
     const fetchLeads = async () => {
       try {
@@ -145,11 +145,11 @@ const handleChange = (e) => {
         method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-     
           ...formData, // Spread existing form data
           country: selectedCountry?.label || formData.country, // Ensure country is passed
           flag: selectedCountry?.flag || formData.flag, // Ensure flag is passed
-        }),      });
+        }),
+      });
 
       const result = await response.json();
       if (response.ok) {
@@ -195,205 +195,203 @@ const handleChange = (e) => {
     }
   };
 
-    
-    const handleEdit = (lead) => {
-      setEditId(lead._id); // Set the edit ID
-      setIsOpen(true)
-      setFormData({
-        name: lead.name,
-        discountRate: lead.discountRate,
-        supplyPrice: lead.supplyPrice,
-        premium: lead.premium,
-        basePrice: lead.basePrice,
-        country: lead.country,
-        flag: lead.flag,
-        salesProfit: lead.salesProfit,
-      });
-    };
-  
-
+  const handleEdit = (lead) => {
+    setEditId(lead._id); // Set the edit ID
+    setIsOpen(true);
+    setFormData({
+      name: lead.name,
+      discountRate: lead.discountRate,
+      supplyPrice: lead.supplyPrice,
+      premium: lead.premium,
+      basePrice: lead.basePrice,
+      country: lead.country,
+      flag: lead.flag,
+      salesProfit: lead.salesProfit,
+    });
+  };
 
   return (
-           <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-                <div className="flex items-center justify-center  bg-gray-100">
-                <button
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 text-white bg-blue-500 rounded-lg"
-      >
-        <FaPlus /> 마진 DATA 추가
-      </button>
+    <div className="w-full mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+      <div className="flex items-center justify-between bg-gray-100 p-4 rounded-md mb-6">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+        >
+          <FaPlus /> 마진 DATA 추가
+        </button>
+        <button 
+          onClick={handleLogout} 
+          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+        >로그아웃Logout
+        </button>
+      </div>
 
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-none bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-          <h2 className="text-xl font-bold mb-4">Add a New Lead</h2>
-      {message && <p className="mb-4 text-center text-green-600">{message}</p>}
-      <div className="max-w-lg mx-auto p-6 bg-white rounded shadow">
-      <h2 className="text-xl font-semibold mb-4">Add Margin Data</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="w-80">
-      <Select
-        options={countries}
-        placeholder="Select a country..."
-        onChange={handleCountryChange}
-        components={{ SingleValue: customSingleValue, Option: customOption }}
-      />
-    </div>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="number"
-          name="discountRate"
-          placeholder="Discount Rate"
-          value={formData.discountRate}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="number"
-          name="supplyPrice"
-          placeholder="Supply Price"
-          value={formData.supplyPrice}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="number"
-          name="premium"
-          placeholder="Premium"
-          value={formData.premium}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="number"
-          name="basePrice"
-          placeholder="Base Price"
-          value={formData.basePrice}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-      
-        <input
-          type="number"
-          name="salesProfit"
-          placeholder="Sales Profit"
-          value={formData.salesProfit}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-  <div className="flex justify-between items-center mt-4 space-x-4">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            Submit
-          </button>
-
-          <button
-            type="button"
-            onClick={() =>
-              setFormData({
-                name: "",
-                discountRate: "",
-                supplyPrice: "",
-                premium: "",
-                basePrice: "",
-                country: "",
-                salesProfit: "",
-              })
-            }
-            className="px-4 py-2 bg-red-500 text-white rounded-lg"
-          >
-            Reset
-          </button>
-
-          {/* Centered Close Button */}
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
-          >
-            Close
-          </button>
-        </div>
-      </form>
-    </div>
-                
+        <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-20 z-20">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4">
+            <h2 className="text-xl font-bold mb-4">{editId ? "Edit Lead" : "Add a New Lead"}</h2>
+            {message && <p className="mb-4 text-center text-green-600">{message}</p>}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="w-full">
+                <Select
+                  options={countries}
+                  placeholder="Select a country..."
+                  onChange={handleCountryChange}
+                  components={{ SingleValue: customSingleValue, Option: customOption }}
+                />
+              </div>
+              <input
+                type="text"
+                name="name"
+                placeholder="Name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="number"
+                name="discountRate"
+                placeholder="Discount Rate"
+                value={formData.discountRate}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="number"
+                name="supplyPrice"
+                placeholder="Supply Price"
+                value={formData.supplyPrice}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="number"
+                name="premium"
+                placeholder="Premium"
+                value={formData.premium}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="number"
+                name="basePrice"
+                placeholder="Base Price"
+                value={formData.basePrice}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="number"
+                name="salesProfit"
+                placeholder="Sales Profit"
+                value={formData.salesProfit}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded"
+              />
+              <div className="flex justify-between items-center mt-4 space-x-4">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                  {editId ? "Update" : "Submit"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData({
+                      name: "",
+                      discountRate: "",
+                      supplyPrice: "",
+                      premium: "",
+                      basePrice: "",
+                      country: "",
+                      salesProfit: "",
+                    })
+                  }
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                >
+                  Close
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
+
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold mb-4">Leads List</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">국가</th>
+                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">유저 이름</th>
+                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">할인율</th>
+                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">공급가</th>
+                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">프리미엄</th>
+                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">기준가</th>
+              
+                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">판매수익</th>
+                <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white">
+              {leads.length > 0 ? (
+                leads.map((lead) => (
+                  <tr key={lead._id}>
+                    <td className="px-2 py-4   h-[50px]  flex items-center">
+                      {lead.country} 
+                      <img 
+                        src={lead.flag} 
+                        alt={lead.country} 
+                        className="w-6 h-4 rounded-sm shadow-sm ml-2"
+                      />
+                    </td>
+                    <td className="px-2 h-[50px] py-4  ">{lead.name}</td>
+                    <td className="px-2 h-[50px]  py-4  ">{lead.discountRate}%</td>
+                    <td className="px-2 h-[50px] py-4  ">${lead.supplyPrice}</td>
+                    <td className="px-2 h-[50px] py-4  ">${lead.premium}</td>
+                    <td className="px-2 h-[50px] py-4  ">${lead.basePrice}</td>
+                    
+                    <td className="px-2 h-[50px] py-4  ">${lead.salesProfit}</td>
+                    <td className="px-2 h-[50px] py-4   flex space-x-4">
+                      <button 
+                        onClick={() => handleEdit(lead)} 
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        ✏️
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(lead._id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        🗑️
+                      </button> 
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="9" className="px-6 py-4 whitespace-no-wrap text-center">No leads found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div className="mt-6">
-      
-  {/* <h3 className="text-lg font-semibold">Leads List</h3> */}
-  <div className="flex justify-between items-center mb-4">
-    <h3 className="text-lg font-semibold">Leads List</h3>
-    <button 
-      onClick={handleLogout} 
-      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-    >
-      Logout
-    </button>
-  </div>
-
-  <ul className="mt-2 space-y-2">
-    {leads.length > 0 ? (
-      leads.map((lead) => (
-        <li
-          key={lead._id}
-          className="p-4 border rounded shadow flex justify-between items-center"
-        >
-          <div>
-            <p><strong>유저 이름:</strong> {lead.name}</p>
-            <p><strong>할인율:</strong> {lead.discountRate}%</p>
-            <p><strong>공급가:</strong> ${lead.supplyPrice}</p>
-            <p><strong>프리미엄:</strong> ${lead.premium}</p>
-            <p><strong>기준가:</strong> ${lead.basePrice}</p>
-            <p className="flex items-center gap-2">
-              <strong>국가:</strong> {lead.country} 
-              <img 
-                src={lead.flag} 
-                alt={lead.country} 
-                className="w-6 h-4 rounded-sm shadow-sm"
-              />
-            </p>
-            <p><strong>판매수익:</strong> ${lead.salesProfit}</p>
-            <p><strong>생성일:</strong> {new Date(lead.createdAt).toLocaleString()}</p>
-          </div>
-          <button 
-            onClick={() => handleDelete(lead._id)}
-            className="text-red-500 hover:text-red-700"
-          >
-            🗑️
-          </button>
-          <div className="flex space-x-2">
-                  <button onClick={() => handleEdit(lead)} className="text-blue-500 hover:text-blue-700">
-                    ✏️
-                  </button>
-                </div>
-        </li>
-      ))
-    ) : (
-      <p>No leads found.</p>
-    )}
-  </ul>
-</div>
-
-    
-    </div>
-
-   );
+  );
 }
